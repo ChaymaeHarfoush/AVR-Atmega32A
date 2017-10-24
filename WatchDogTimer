@@ -1,0 +1,34 @@
+/*
+* WatchDogTimer.c
+*
+This code tests the Watch Dog timer by introducing a delay in the While(1) more than 2sec
+You would see the 2 leds blinks adter 2 seconds this means that the MCU has been reset by the WDT
+* Created: 22-Oct-17 6:24:07 PM
+* Author : Chaymae
+*/
+
+#include "TimerCounter.h"
+#include "WDT.h"
+
+#define PORTD *(volatile u8*)0x32
+#define DDRD *(volatile u8*)0x31
+
+int main(void)
+{
+	DDRD |= (1<<7) | (1<<6) ;//pin7 and pin6  is an output portD
+	PORTD |= (1<<7) | (1<<6);//put one on the leds
+	wdt_disable();
+	wdt_enable(WDTO_2S);
+
+
+	while (1)
+	{
+
+		// simulating time consuming code
+		delay_1m_sec(20000);
+		// signal the watchdog we are still alive: the watchdog will reset its timer
+		wdt_reset();
+		PORTD &= ~(1<<7) & ~(1<<6); // just for testing 
+	}
+	return 0;
+}
